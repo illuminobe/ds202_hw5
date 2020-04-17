@@ -33,6 +33,7 @@ This dataset https://data.iowa.gov/Sales-Distribution/2019-Iowa-Liquor-Sales/38x
 ```{r}
 df = readr::read_csv("2019_Iowa_Liquor_Sales.csv")
 ```
+
 2. Data cleaning:
   a. extract geographic latitude and longitude from the variable `Store Location`
 ```{r}
@@ -43,11 +44,6 @@ df$'Store Location' <- gsub("\\)", "", df$'Store Location')
 iaLiquorSales <- df
 iaLiquorSales <- iaLiquorSales %>%
   separate('Store Location', into = c("Longitude", "Latitude"), sep = " ")
-#iaLiquorSales[16, ] # Longitude and Latitude seem to be extracted correctly
-# Filtering out NA values
-#iaLiquorSales <- iaLiquorSales %>%
-#  filter(!is.na(Latitude) | !is.na(Longitude))
-iaLiquorSales[16, ]
 ```
   
   b. make sure the variables are in the correct type, by converting incorrect variable types.
@@ -113,18 +109,20 @@ iaLiquorSales %>%
 iaLiquorSales %>%
   group_by(Month, Day) %>%
   summarise(sold = sum(`Volume Sold (Liters)`)) %>%
-  ggplot(iaLiquorSales, mapping = aes(x = Day, y = sold)) + geom_point() + facet_wrap(vars(Month)) + geom_smooth(method = "loess", formula = y ~ x, size = 1) + xlab('Volume in Liters') + ylab('Month')  + ggtitle('Volume Sold by Day')
+  ggplot(iaLiquorSales, mapping = aes(x = Day, y = sold)) + geom_point() + facet_wrap(vars(Month)) + geom_smooth(method = "loess", formula = y ~ x, size = 1) + xlab('Day') + ylab('Volume in Liters')  + ggtitle('Volume Sold by Day')
 ```
+
+One pattern/trend I see is the spike in the volume sold in the middle of February. This is most likely due to the superbowl.
 
 6. Find the dates for ISU football home games in Fall 2019. Can you see a pattern? 
 ```{r}
-# ISU home games
-# 8-31-19, 9-14-19, 9-21-19, 10-5-19, 10-26-19, 11-16-19, 11-23-19
-# transform replaces unrecognized characters with "."
+# ISU home games: 8/31/19, 9/14/19, 9/21/19, 10/5/19, 10/26/19, 11/16/19, 11/23/19
 homeGames <- c("08/31/2019", "09/14/2019", "09/21/2019", "10/05/2019", "10/26/2019", "11/16/2019", "11/23/2019")
 iaLiquorSales$homeGames = (iaLiquorSales$Date %in% homeGames)
 iaLiquorSales %>%
   ggplot(iaLiquorSales, mapping = aes(x = Date, y = `Sale (Dollars)`, fill = homeGames)) + geom_col() + xlab('Date') + ylab('Dollars') + ggtitle("Liqour Sales during 2019 ISU Football Home Games")
 ```
+
+There does not seem to be any patterns.
 
 Note: your submission is supposed to be fully reproducible, i.e. the TA and I will 'knit' your submission in RStudio. 
